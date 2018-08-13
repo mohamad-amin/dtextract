@@ -133,6 +133,9 @@ def runCompareSingle(path, hasHeader, dataTypes, isClassify, nDataMatrixCols, di
     log(str(dtExtract), INFO)
     log('Node count: ' + str(dtExtract.nNodes()), INFO)
 
+    log('DT in DOT language:', INFO)
+    log(str(dtExtract.toDotGraph()), INFO)
+
     scoreFunc = f1 if isClassify else mse
     
     dtExtractRelTrainScore = scoreFunc(dtExtract.eval, XTrain, rf.predict(XTrain))

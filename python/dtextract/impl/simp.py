@@ -80,6 +80,9 @@ class LeafNode:
     def eval(self, x):
         return self.val
 
+    def get_label(self):
+        return str(self)
+
     # Convert to string (just represents its constant value).
     def __str__(self):
         return str(self.val)
@@ -108,6 +111,9 @@ class InternalNode:
     #  return : bool
     def eval(self, x):
         return bool(x[self.ind] <= self.thresh)
+
+    def get_label(self):
+        return str(self)
 
     # Convert to string.
     def __str__(self):

@@ -128,6 +128,9 @@ def runCsvSingle(path, hasHeader, dataTypes, isClassify, nDataMatrixCols,distTyp
     log(str(dtExtract), INFO)
     log('Node count: ' + str(dtExtract.nNodes()), INFO)
 
+    log('DT in DOT language:', INFO)
+    log(str(dtExtract.toDotGraph()), INFO)
+
     dtExtractRelTrainScore = acc(dtExtract.eval, XTrain, rf.predict(XTrain))
     dtExtractRelCvScore = acc(dtExtract.eval, XCv, rf.predict(XCv))
     dtExtractRelTestScore = acc(dtExtract.eval, XTest, rf.predict(XTest))
