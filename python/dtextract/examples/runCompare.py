@@ -18,8 +18,10 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree import DecisionTreeRegressor
+
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier, _tree
+
+from treeinterpreter import treeinterpreter as ti
 
 from ..data.data import *
 from ..data.consts import *
@@ -98,6 +100,14 @@ def runCompareSingle(path, hasHeader, dataTypes, isClassify, nDataMatrixCols, di
         rf = rfConstructor(n_estimators=nTrees)
         rf.fit(XTrain, yTrain)
         log('Done!', INFO)
+        log('Testing tree interpreter...', INFO)
+        prediction, bias, contribution = ti.predict(rf, XTest)
+        log('X[0]: ' + str(XTest[10]), INFO)
+        log('Y[0]: ' + str(yTest[10]), INFO)
+        log('Prediction of TI: ' + str(prediction[10]), INFO)
+        log('Bias of TI: ' + str(bias[10]), INFO)
+        log('Contribution of TI: ' + str(contribution[10]), INFO)
+        log('Done!', INFO)
     else:
         log('Training neural net...', INFO)
         rfConstructor = MLPClassifier if isClassify else MLPRegressor
@@ -127,28 +137,28 @@ def runCompareSingle(path, hasHeader, dataTypes, isClassify, nDataMatrixCols, di
         raise Exception('Invalid distType: ' + distType)
 
     # Step 5: Extract decision tree
-    dtExtract = learnDTSimp(genAxisAligned, rfFunc, dist, paramsLearn, paramsSimp)
+    # dtExtract = learnDTSimp(genAxisAligned, rfFunc, dist, paramsLearn, paramsSimp)
 
-    log('Decision tree:', INFO)
-    log(str(dtExtract), INFO)
-    log('Node count: ' + str(dtExtract.nNodes()), INFO)
-
-    log('DT in DOT language:', INFO)
-    log(str(dtExtract.toDotGraph()), INFO)
-
+    # log('Decision tree:', INFO)
+    # log(str(dtExtract), INFO)
+    # log('Node count: ' + str(dtExtract.nNodes()), INFO)
+    #
+    # log('DT in DOT language:', INFO)
+    # log(str(dtExtract.toDotGraph()), INFO)
+    #
     scoreFunc = f1 if isClassify else mse
-    
-    dtExtractRelTrainScore = scoreFunc(dtExtract.eval, XTrain, rf.predict(XTrain))
-    dtExtractRelTestScore = scoreFunc(dtExtract.eval, XTest, rf.predict(XTest))
-
-    log('Relative training score: ' + str(dtExtractRelTrainScore), INFO)
-    log('Relative test score: ' + str(dtExtractRelTestScore), INFO)
-    
-    dtExtractTrainScore = scoreFunc(dtExtract.eval, XTrain, yTrain)
-    dtExtractTestScore = scoreFunc(dtExtract.eval, XTest, yTest)
-    
-    log('Training score: ' + str(dtExtractTrainScore), INFO)
-    log('Test score: ' + str(dtExtractTestScore), INFO)
+    #
+    # dtExtractRelTrainScore = scoreFunc(dtExtract.eval, XTrain, rf.predict(XTrain))
+    # dtExtractRelTestScore = scoreFunc(dtExtract.eval, XTest, rf.predict(XTest))
+    #
+    # log('Relative training score: ' + str(dtExtractRelTrainScore), INFO)
+    # log('Relative test score: ' + str(dtExtractRelTestScore), INFO)
+    #
+    # dtExtractTrainScore = scoreFunc(dtExtract.eval, XTrain, yTrain)
+    # dtExtractTestScore = scoreFunc(dtExtract.eval, XTest, yTest)
+    #
+    # log('Training score: ' + str(dtExtractTrainScore), INFO)
+    # log('Test score: ' + str(dtExtractTestScore), INFO)
     
     # Step 6: Train a (greedy) decision tree
     log('Training greedy decision tree', INFO)
@@ -171,9 +181,98 @@ def runCompareSingle(path, hasHeader, dataTypes, isClassify, nDataMatrixCols, di
     log('Training score: ' + str(dtTrainTrainScore), INFO)
     log('Test score: ' + str(dtTrainTestScore), INFO)
 
+
+    log('Playground with DTC:', INFO)
+
+    log('Leaves:', INFO)
+    mLeaves = dtTrain.apply(XTest)
+    log(str(mLeaves) + '\n', INFO)
+
+    log('Paths:', INFO)
+    paths = _get_tree_paths(dtTrain.tree_, 0)
+    for path in paths:
+        path.reverse()
+    log(str(paths), INFO)
+
+    log('Leaf to path:', INFO)
+    leaf_to_path = {}
+    # map leaves to paths
+    for path in paths:
+        leaf_to_path[path[-1]] = path
+    log(str(leaf_to_path) + '\n', INFO)
+
+    values = dtTrain.tree_.value.squeeze(axis=1)
+    normalizer = values.sum(axis=1)[:, np.newaxis]
+    normalizer[normalizer == 0.0] = 1.0
+    values /= normalizer
+    log('Normalized values:', INFO)
+    log(str(values) + '\n', INFO)
+
+    biases = np.tile(values[paths[0][0]], (XTest.shape[0], 1))
+    log('Biases:', INFO)
+    log(str(biases), INFO)
+    line_shape = (XTest.shape[1], dtTrain.n_classes_)
+    log('Line shape:', INFO)
+    log(str(line_shape), INFO)
+    log('Model features:', INFO)
+    log(str(dtTrain.tree_.feature) + '\n', INFO)
+
+    values_list = list(values)
+    log('Values list:', INFO)
+    log(str(values_list), INFO)
+    feature_index = list(dtTrain.tree_.feature)
+    contributions = []
+
+    unique_leaves = np.unique(mLeaves)
+    unique_contributions = {}
+
+    log('Unique leaves:', INFO)
+    log(str(unique_leaves), INFO)
+
+    for row, leaf in enumerate(unique_leaves):
+        path = leaf_to_path[leaf]
+        contribs = np.zeros(line_shape)
+        for i in range(len(path) - 1):
+            contrib = values_list[path[i+1]] - values_list[path[i]]
+            contribs[feature_index[path[i]]] += contrib
+        unique_contributions[leaf] = contribs
+
+    for row, leaf in enumerate(mLeaves):
+        contributions.append(unique_contributions[leaf])
+
+    log('Contibs:', INFO)
+    log(str(contributions) + '\n', INFO)
+
+    # return [rfTrainScore, rfTestScore,
+    #         dtExtractRelTrainScore, dtExtractRelTestScore, dtExtractTrainScore, dtExtractTestScore,
+    #         dtTrainRelTrainScore, dtTrainRelTestScore, dtTrainTrainScore, dtTrainTestScore]
+
     return [rfTrainScore, rfTestScore,
-            dtExtractRelTrainScore, dtExtractRelTestScore, dtExtractTrainScore, dtExtractTestScore,
+            None, None, None, None,
             dtTrainRelTrainScore, dtTrainRelTestScore, dtTrainTrainScore, dtTrainTestScore]
+
+def _get_tree_paths(tree, node_id, depth=0):
+    """
+    Returns all paths through the tree as list of node_ids
+    """
+    if node_id == _tree.TREE_LEAF:
+        raise ValueError("Invalid node_id %s" % _tree.TREE_LEAF)
+
+    left_child = tree.children_left[node_id]
+    right_child = tree.children_right[node_id]
+
+    if left_child != _tree.TREE_LEAF:
+        left_paths = _get_tree_paths(tree, left_child, depth=depth + 1)
+        right_paths = _get_tree_paths(tree, right_child, depth=depth + 1)
+
+        for path in left_paths:
+            path.append(node_id)
+        for path in right_paths:
+            path.append(node_id)
+        paths = left_paths + right_paths
+    else:
+        paths = [[node_id]]
+    return paths
 
 # Runs the CSV example repeatedly and reports the average values.
 #
