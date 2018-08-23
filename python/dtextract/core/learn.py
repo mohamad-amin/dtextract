@@ -145,13 +145,16 @@ def learnDT(learnDTNode, func, dist, initCons, params):
         dt[index] = (dtLeafData, _DT_LEAF)
 
     # Step 4: Construct the decision tree
-    return DT(_learnDTHelper(dt, 0))
+    return DT(_learnDTHelper(dt, 0)), dt
 
 def _learnDTHelper(dt, index):
     (data, nodeType) = dt[index]
     if nodeType == _DT_INTERNAL:
-        return DTNode(data, _learnDTHelper(dt, 2*index+1), _learnDTHelper(dt, 2*index+2))
+        dt[index] = DTNode(branch=data, left=_learnDTHelper(dt, 2*index+1), right=_learnDTHelper(dt, 2*index+2), id=index)
+        return dt[index]
     elif nodeType == _DT_LEAF:
+        data.id = index
+        dt[index] = data
         return data
     else:
         raise Exception('Invalid node type: ' + str(nodeType))

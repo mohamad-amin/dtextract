@@ -51,7 +51,7 @@ def setCurVerbosity(verbosity):
 # parameters/returns:
 #  msg : str
 #  verbosity : int
-def log(msg, verbosity):
+def log(msg, verbosity = INFO):
     if verbosity <= _curVerbosity:
         print msg
         if not _output is None:

@@ -29,10 +29,11 @@
 #  right : DTNode | {eval : X -> Y}
 class DTNode:
     # initialization
-    def __init__(self, branch, left, right):
+    def __init__(self, branch, left, right, id):
         self.branch = branch
         self.left = left
         self.right = right
+        self.id = id
 
     # evaluate the output func(x) for a given input x
     #
@@ -47,6 +48,15 @@ class DTNode:
             return self.left.eval(x)
         else:
             return self.right.eval(x)
+
+    def eval_leaf(self, x):
+        val = self.branch.eval(x)
+        if not type(val) == bool:
+            raise Exception('Invalid branch: ' + str(self.branch) + ', produced value: ' + str(val) + ', of type: ' + str(type(val)) + ', on input: ' + str(x))
+        if val:
+            return self.left.eval_leaf(x)
+        else:
+            return self.right.eval_leaf(x)
         
     # number of child nodes
     #
@@ -76,8 +86,9 @@ class DTNode:
 #  func : X -> Y
 class DTLeaf:
     # initialization
-    def __init__(self, func):
+    def __init__(self, func, id):
         self.func = func
+        self.id = id
     
     # evaluate the output func(x) for a given input x
     #
@@ -86,6 +97,9 @@ class DTLeaf:
     #  return : Y
     def eval(self, x):
         return self.func(x)
+
+    def eval_leaf(self, x):
+        return self
 
     def get_label(self):
         return str(self)
@@ -126,7 +140,10 @@ class DT:
     #  return : Y
     def eval(self, x):
         return self.root.eval(x)
-    
+
+    def eval_leaf(self, x):
+        return self.root.eval_leaf(x)
+
     # node count
     #
     # parameters/returns:
@@ -145,7 +162,7 @@ class DT:
 
     @staticmethod
     def _toDotGraphInternal(node, num):
-        if (node.__class__ == DTNode):
+        if node.__class__ == DTNode:
 
             leftNodes = node.left.nNodes() if (node.left.__class__ == DTNode) else 1
             leftNodes += 1
@@ -170,9 +187,9 @@ class DT:
         return tabChar + name + ' [label="' + label + '"];' + '\n'
 
     @staticmethod
-    def _dotTo(nFrom, nTo):
+    def _dotTo(n_from, n_to):
         tabChar = '    '
-        return tabChar + nFrom + ' -> ' + nTo + ';' + '\n'
+        return tabChar + n_from + ' -> ' + n_to + ';' + '\n'
 
     # Convert to string.
     def __str__(self):

@@ -71,7 +71,8 @@ def learnDTSimp(gen, func, dist, paramsLearn, params):
 class LeafNode:
     def __init__(self, val):
         self.val = val
-    
+        self.id = -1
+
     # Evaluate the leaf node on the given input x.
     #
     # parameters/returns:
@@ -79,6 +80,9 @@ class LeafNode:
     #  return : Y
     def eval(self, x):
         return self.val
+
+    def eval_leaf(self, x):
+        return self
 
     def get_label(self):
         return str(self)
