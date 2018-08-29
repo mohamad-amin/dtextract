@@ -32,7 +32,7 @@ from dt_interpreter import *
 trainingProp = 0.7 # proportion of training data
 
 # Gaussian mixture model parameters
-nComponents = 100
+nComponents = 15
 
 # model training parameters
 useRandomForest = True
@@ -46,7 +46,7 @@ hiddenSize = 500
 # decision tree extraction parameters
 tgtScore = None
 minGain = None
-maxSize = 31
+maxSize = 64
 
 nPts = 2000
 nPtTries = 100
@@ -192,7 +192,7 @@ def runCompare(path, hasHeader, dataTypes, isClassify, nDataMatrixCols, output, 
     vals = [0.0 for i in range(nVals)]
 
     # obtain averages
-    for i in range(nRepeats):
+    for i in range(nRepeats): # performing this for loop
         curVals = runCompareSingle(path, hasHeader, dataTypes, isClassify, nDataMatrixCols, distType)
         for j in range(nVals):
             vals[j] += curVals[j]

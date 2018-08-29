@@ -1,8 +1,11 @@
+import pandas as pd
+
 from ..impl.base import *
 from ..impl.simp import *
+from ..util.local_explanation import LocalExplanation
 
 
-def interpret_tree(dt, dtMap, XTrain, yTrain, XTest, yTest):
+def interpret_tree(dt, dtMap, XTest, yTest):
 
     # log('Leaves:', INFO)
     mLeaves = []
@@ -23,10 +26,12 @@ def interpret_tree(dt, dtMap, XTrain, yTrain, XTest, yTest):
         leaf_to_path[path[-1]] = path
     # log(str(leaf_to_path) + '\n', INFO)
 
-    values = _get_values(dt, XTrain, yTrain)
+    classes_count = len(np.unique(yTest))
+    log('Classes count is ' + str(classes_count))
+    values = _get_values(dt, XTest, yTest, classes_count)
     normalizer = {k: sum(v) for k, v in values.items()}
     for node_id in values:
-        for i in range(len(XTrain[0])):
+        for i in range(classes_count):
             values[node_id][i] = values[node_id][i] / float(normalizer[node_id])
     # log('Normalized values:', INFO)
     # log(str(values) + '\n', INFO)
@@ -34,7 +39,8 @@ def interpret_tree(dt, dtMap, XTrain, yTrain, XTest, yTest):
     biases = np.tile(values[paths[0][0]], (XTest.shape[0], 1))
     log('Biases:', INFO)
     log(str(biases), INFO)
-    line_shape = (XTest.shape[1], len(values[0])) # Note: this is hacky :D
+    line_shape = (XTest.shape[1], classes_count) # Note: this is hacky :D
+    log('Line shape is: ' + str(line_shape))
     # log('Line shape:', INFO)
     # log(str(line_shape) + '\n', INFO)
 
@@ -51,6 +57,11 @@ def interpret_tree(dt, dtMap, XTrain, yTrain, XTest, yTest):
     nvalues = {}
     for node_id in values:
         nvalues[node_id] = np.array(values[node_id])
+
+    direct_prediction = []
+    for leave in mLeaves:
+        direct_prediction.append(nvalues[leave])
+
     # log('Converted values:')
     # log(str(values))
 
@@ -73,18 +84,37 @@ def interpret_tree(dt, dtMap, XTrain, yTrain, XTest, yTest):
 
     for row, leaf in enumerate(mLeaves):
         contributions.append(unique_contributions[leaf])
-
     log('Contibs:', INFO)
     log(str(contributions) + '\n', INFO)
+    # log('Sum over axis 1:')
+    # log(str(np.sum(contributions, axis=1)))
+    # log('Prediction:')
+    # log(str(biases + np.sum(contributions, axis=1)))
+    return direct_prediction, biases, contributions
 
-    log('Sum over axis 1:')
-    log(str(np.sum(contributions, axis=1)))
 
-    log('Prediction:')
-    log(str(biases + np.sum(contributions, axis=1)))
+def assert_interpretation(prediction, biases, contributions):
+    assert(np.allcloese(prediction, biases + np.sum(contributions, axis=1)))
 
 
-def _get_values(dt, XTrain, yTrain):
+def interpret_samples(rf, dt, samples, contributions, labels, ascending=False):
+    order = 1 if ascending else -1
+    explanations = []
+    rf_predictions = rf.predict(samples)
+    for i in range(len(contributions)):
+        prediction = dt.eval(samples[i])
+        lc = np.column_stack((labels, samples[i], contributions[i]))
+        lc = lc[lc[:, prediction+2].argsort()[::order]]
+        explanations.append(LocalExplanation(samples[i], prediction, rf_predictions[i], lc))
+    return explanations
+
+
+def get_headers(dataset_path):
+    list(pd.read_csv(dataset_path))
+
+
+# Note: if there are 10 classes, they should be numbered from 0 to 9
+def _get_values(dt, XTrain, yTrain, classes_count):
     values = {}
     for i in range(len(XTrain)):
         node = dt.root
@@ -92,7 +122,7 @@ def _get_values(dt, XTrain, yTrain):
             if node.id in values:
                 values[node.id][_class(yTrain[i])] += 1
             else:
-                values[node.id] = [0] * len(XTrain[0])
+                values[node.id] = [0] * classes_count
                 values[node.id][_class(yTrain[i])] += 1
             if not _is_leaf(node):
                 val = node.branch.eval(XTrain[i])
