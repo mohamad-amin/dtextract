@@ -210,9 +210,13 @@ def constrainedGaussianDensity(mean, cov, limits):
         limit = limits[d]
         std = np.sqrt(cov[d])
         totalDensity = totalDensity * integrateTruncated(mean[d], std, limit[0], limit[1])
-    
     return totalDensity
 
+def vec_constrainedGaussianDensity(mean, cov, limits):
+    rv = norm(loc=mean, scale=np.sqrt(cov))
+    nlimits = np.array(limits)
+    integrates = rv.cdf(nlimits[:, 1]) - rv.cdf(nlimits[:, 0])
+    return np.prod(integrates)
 
 # Takes constraints of type C and turns it into a list of lists, two 
 # constraints per dimension
@@ -266,6 +270,16 @@ def sampleTruncGaussian(mean, cov, limits, nPts):
         a, b = (limit[0] - mu) / std, (limit[1] - mu) / std
         samples[i,:] = truncnorm.rvs(a, b, loc=mu, scale=std, size=nPts)
     return samples.transpose()
+
+def vec_sampleTruncGaussian(mean, cov, limits, nPts):
+    nCols = len(limits)
+    samples = np.zeros((nPts, nCols))
+    std = np.sqrt(cov)
+    nlimits = np.array(limits)
+    a, b = (nlimits[:, 0] - mean) / std, (nlimits[:, 1] - mean) / std
+    for i in range(nPts):
+        samples[i] = truncnorm.rvs(a, b, loc=mean, scale=std)
+    return samples
 
 # Calculates total density within rectangular constraints of a Gaussian 
 # Mixture Model

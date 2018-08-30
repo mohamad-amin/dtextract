@@ -47,7 +47,11 @@ class GaussianMixtureDist:
             mean = self.gmm.means_[component]
             cov = self.gmm.covariances_[component]
             weight = self.gmm.weights_[component]
-            probabilities[component] = constrainedGaussianDensity(mean, cov, limits) * weight
+            # cgd = constrainedGaussianDensity(mean, cov, limits)
+            vec_cgd = vec_constrainedGaussianDensity(mean, cov, limits)
+            # log('CGD: ' + str(cgd) + ', and vec_cgd: ' + str(vec_cgd))
+            # assert cgd == vec_cgd
+            probabilities[component] = vec_cgd * weight
         return probabilities
 
     # Integrate the probability density given the constraints.
@@ -88,7 +92,7 @@ class GaussianMixtureDist:
         for component in range(self.numComponents):
             curCount = np.sum(chosenComponents == component)
             nextIndex = curIndex + curCount
-            xs[curIndex:nextIndex,:] = sampleTruncGaussian(self.gmm.means_[component], self.gmm.covariances_[component], limits, curCount)
+            xs[curIndex:nextIndex,:] = vec_sampleTruncGaussian(self.gmm.means_[component], self.gmm.covariances_[component], limits, curCount)
             curIndex = nextIndex
 
         return xs
