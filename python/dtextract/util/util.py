@@ -247,7 +247,7 @@ def consolidateConstraints(cons, nCols):
             curLowerLim = limits[ind][0]
             if thresh > curLowerLim:
                 limits[ind][0] = thresh
-    return limits
+    return np.array(limits)
 
 
 # samples from a multidimensional truncated diagonal-covariance gaussian
@@ -273,12 +273,10 @@ def sampleTruncGaussian(mean, cov, limits, nPts):
 
 def vec_sampleTruncGaussian(mean, cov, limits, nPts):
     nCols = len(limits)
-    samples = np.zeros((nPts, nCols))
     std = np.sqrt(cov)
     nlimits = np.array(limits)
     a, b = (nlimits[:, 0] - mean) / std, (nlimits[:, 1] - mean) / std
-    for i in range(nPts):
-        samples[i] = truncnorm.rvs(a, b, loc=mean, scale=std)
+    samples = truncnorm.rvs(a, b, loc=mean, scale=std, size=(nPts, nCols))
     return samples
 
 # Calculates total density within rectangular constraints of a Gaussian 
