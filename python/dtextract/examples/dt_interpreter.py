@@ -97,14 +97,19 @@ def assert_interpretation(prediction, biases, contributions):
     assert(np.allclose(prediction, biases + np.sum(contributions, axis=1)))
 
 
-def interpret_samples(rf, dt, samples, contributions, labels, ascending=False):
+def interpret_samples(rf, dt, samples, contributions, labels=None, ascending=False):
     order = 1 if ascending else -1
     explanations = []
     rf_predictions = rf.predict(samples)
     for i in range(len(contributions)):
         prediction = dt.eval(samples[i])
-        lc = np.column_stack((labels, samples[i], contributions[i]))
-        lc = lc[lc[:, prediction+2].argsort()[::order]]
+        column_padding = 1
+        if labels is None:
+            lc = np.column_stack((samples[i], contributions[i]))
+        else:
+            column_padding += 1
+            lc = np.column_stack((labels, samples[i], contributions[i]))
+        lc = lc[lc[:, prediction+column_padding].argsort()[::order]]
         explanations.append(LocalExplanation(samples[i], prediction, rf_predictions[i], lc))
     return explanations
 
