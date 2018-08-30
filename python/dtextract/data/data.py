@@ -38,7 +38,7 @@ def split(df, prop):
 
     # Step 1: Shuffle the row indices
     rows = [i for i in range(len(df))]
-    random.shuffle(rows)
+    # random.shuffle(rows)
 
     # Step 2: Split into training and test rows
     splitPoint = int(prop * len(df))

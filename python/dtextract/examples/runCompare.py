@@ -46,7 +46,7 @@ hiddenSize = 500
 # decision tree extraction parameters
 tgtScore = None
 minGain = None
-maxSize = 64
+maxSize = 128
 
 nPts = 2000
 nPtTries = 100

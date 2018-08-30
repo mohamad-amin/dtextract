@@ -94,7 +94,7 @@ def interpret_tree(dt, dtMap, XTest, yTest):
 
 
 def assert_interpretation(prediction, biases, contributions):
-    assert(np.allcloese(prediction, biases + np.sum(contributions, axis=1)))
+    assert(np.allclose(prediction, biases + np.sum(contributions, axis=1)))
 
 
 def interpret_samples(rf, dt, samples, contributions, labels, ascending=False):

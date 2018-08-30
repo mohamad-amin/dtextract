@@ -31,9 +31,9 @@ ACLIMDB_N_DATA_MATRIX_COLS = 28350 # TODO: check this
 ACLIMDB_OUTPUT = 'aclimdb.log'
 
 # Youtube Shakira's video's comments spam classification
-YOUTUBE_SHAKIRA_PATH = TMP_PATH + '/youtube_shakira.csv'
+YOUTUBE_SHAKIRA_PATH = TMP_PATH + '/new_youtube_shakira.csv'
 YOUTUBE_SHAKIRA_HAS_HEADER = False
-YOUTUBE_SHAKIRA_DATA_TYPES = [ID] + [NUM] * 1195 + [CAT_RES]
+YOUTUBE_SHAKIRA_DATA_TYPES = [ID] * 2 + [NUM] * 1195 + [CAT_RES]
 
 YOUTUBE_SHAKIRA_IS_CLASSIFY = True
 YOUTUBE_SHAKIRA_N_DATA_MATRIX_COLS = len(YOUTUBE_SHAKIRA_DATA_TYPES) - 1 # TODO: check this
@@ -49,3 +49,13 @@ FACES_IS_CLASSIFY = True
 FACES_N_DATA_MATRIX_COLS = 2501 # TODO: check this
 
 FACES_OUTPUT = 'faces.log'
+
+# Simple 50*50 samples' face detection
+SMS_SPAM_PATH = TMP_PATH + '/sms_spams.csv'
+SMS_SPAM_HAS_HEADER = True
+SMS_SPAM_DATA_TYPES = [NUM] * 8444 + [CAT_RES]
+
+SMS_SPAM_IS_CLASSIFY = True
+SMS_SPAM_N_DATA_MATRIX_COLS = 8446 # TODO: check this
+
+SMS_SPAM_OUTPUT = 'sms_spam.log'
