@@ -32,7 +32,7 @@ from dt_interpreter import *
 trainingProp = 0.7 # proportion of training data
 
 # Gaussian mixture model parameters
-nComponents = 15
+nComponents = 100
 
 # model training parameters
 useRandomForest = True
@@ -46,7 +46,7 @@ hiddenSize = 500
 # decision tree extraction parameters
 tgtScore = None
 minGain = None
-maxSize = 128
+maxSize = 31
 
 nPts = 2000
 nPtTries = 100
@@ -132,7 +132,7 @@ def runCompareSingle(path, hasHeader, dataTypes, isClassify, nDataMatrixCols, di
     log('DT in DOT language:', INFO)
     log(str(dtExtract.toDotGraph()), INFO)
 
-    interpret_tree(dtExtract, dtMap, XTrain, yTrain, XTest, yTest)
+    # interpret_tree(dtExtract, dtMap, XTrain, yTrain, XTest, yTest)
 
     scoreFunc = f1 if isClassify else mse
 
