@@ -29,10 +29,10 @@ from dt_interpreter import *
 # Parameters
 
 # general training parameters
-trainingProp = 0.7 # proportion of training data
+trainingProp = 0.7  # proportion of training data
 
 # Gaussian mixture model parameters
-nComponents = 100
+nComponents = 1000
 
 # model training parameters
 useRandomForest = True
@@ -46,7 +46,7 @@ hiddenSize = 500
 # decision tree extraction parameters
 tgtScore = None
 minGain = None
-maxSize = 31
+maxSize = 664
 
 nPts = 2000
 nPtTries = 100

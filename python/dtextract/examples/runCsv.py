@@ -27,7 +27,7 @@ from ..util.util import *
 # Parameters
 
 # general training parameters
-trainingProp = 0.6 # proportion of training data
+trainingProp = 0.7 # proportion of training data
 cvProp = 0.3 # proportion of cv data
 
 # Gaussian mixture model parameters
@@ -39,7 +39,7 @@ nTrees = 1000
 # decision tree extraction parameters
 tgtScore = None
 minGain = None
-maxSize = 33
+maxSize = 64
 
 nPts = 500
 nPtTries = 100
