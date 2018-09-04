@@ -59,3 +59,12 @@ SMS_SPAM_IS_CLASSIFY = True
 SMS_SPAM_N_DATA_MATRIX_COLS = 8446 # TODO: check this
 
 SMS_SPAM_OUTPUT = 'sms_spam.log'
+
+# Test
+TEST_PATH = TMP_PATH + '/test.csv'  # Path to the input dataset csv
+TEST_HAS_HEADER = False  # If the first row is a header row
+TEST_DATA_TYPES = [ID] + [NUM] * 10 + [CAT_RES]  # First column is id (not important), 10 numeric feature columns, categorical label column
+
+TEST_IS_CLASSIFY = True  # If it's a classification problem
+
+TEST_OUTPUT = 'test.log'  # The output file to write log of running code
