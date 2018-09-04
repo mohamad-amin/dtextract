@@ -2,19 +2,28 @@
 You can use this jupyter notebook to easily run the code on your dataset.
 First you must change the parameters mentioned below as your needs:
 ```python
-output = TEST_OUTPUT  # The log file in which the log of running code will be written
+outputoutput  ==  TEST_OUTPUTTEST_OU   # The log file in which the log of running code will be written
 path = TEST_PATH  # Path to the input dataset in csv format
 data_types = TEST_DATA_TYPES
 has_header = TEST_HAS_HEADER
-nComponents = 100  # Number of components (the gaussian mixtures)
-maxSize = 64  # maximum tree size
-nPts = 2000  # Number of points used in active sampling
-nTestPts = 2000  # Number of test points used in Active sampling
 isClassify = True  # Weather the problem is a classification or regression problem
 ```
 These parameters can be provided through the [consts_generated.py](https://github.com/mohamad-amin/dtextract/blob/master/python/dtextract/data/consts_generated.py) file.
 
 **Note:** the input dataset must be shuffled if you want it to. This code's `split` function that splits the input dataset to trianing and testing dataset doesn't shuffle the rows before splitting them and does this splitting according to the indexes (i.e. if the dataset has 100 datapoints and the `trainingProp` is set to `0.7` the first 70 samples are chosen as training data and the last 30 samples will be counted as test data).
+
+You can also change the values of some parameters related to the alogrithm:
+```python
+# The main algorithm's parameters
+nComponents = 1000  # Number of components (the gaussian mixtures)
+maxSize = 64  # maximum tree size
+nPts = 2000  # Number of points used in active sampling
+nTestPts = 2000  # Number of test points used in Active sampling
+
+# decision tree training parameters
+maxDtSize = maxSize
+```
+
 
 Then you can run the code line by line using ipython or something similar to train the blackbox model and approximate the decision tree and get the local explanations in the `descriptions` variable.
 You also have access to the `biases`, `contributions` and `predictions` vectors that come from the tree interpreation algorithm ([described here](http://blog.datadive.net/random-forest-interpretation-with-scikit-learn/)).
