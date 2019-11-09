@@ -17,7 +17,7 @@ Table of Contents
 Prerequisites
 =====
 
-DTExtract has been tested using Python 2.7. DTExtract depends on numpy, scipy, scikit-learn, and pandas.
+DTExtract has been tested using Python **3.7**. DTExtract depends on numpy, scipy, scikit-learn, and pandas.
 
 Setting Up DTExtract
 =====
