@@ -8,6 +8,12 @@ DTExtract is a tool for extracting model explanations in the form of decision tr
 
 then DTExtract constructs a decision tree approximating that model.
 
+### IMPORTANT NOTE
+The work on instant local interpretations of blackbox models is under *dev-tree-interpreter* branch, not in *master* branch. Please refer there, to see the code and experiments on **instant local interpretations of blackbox models**. Samples of the work that are available in the experiments section in that branch:
+![Contributions](https://s3.amazonaws.com/media-p.slid.es/uploads/992266/images/6748999/Screen_Shot_2019-11-07_at_1.14.53_AM.png)
+![Prediction Decomposition](https://s3.amazonaws.com/media-p.slid.es/uploads/992266/images/6749004/Screen_Shot_2019-11-07_at_1.15.07_AM.png)
+
+
 Table of Contents
 =====
 0. Prerequisites
